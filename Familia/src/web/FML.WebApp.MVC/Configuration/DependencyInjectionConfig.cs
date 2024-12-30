@@ -19,6 +19,15 @@ namespace Familia.WebApp.MVC.Configuration
             services.AddScoped<IAspNetUser, AspNetUser>();
             services.RegisterJson();
 
+            services.AddHttpClient<IFamiliaService, FamiliaService>(options =>
+            {
+                var familiaUrl = configuration.GetSection("FamiliaUrl").Value;
+                options.BaseAddress = new Uri(familiaUrl);
+            })
+                .AddHttpMessageHandler<AuthorizationHandler>()
+                .ConfigurePrimaryHttpMessageHandler(() => new CustomHttpClientHandler())
+                .AddJsonOptions();
+
             #region REFIT CONFIG
 
             var refitSettings = RefitConfig.GetRefitSettings();
@@ -32,17 +41,6 @@ namespace Familia.WebApp.MVC.Configuration
                 .AddHttpMessageHandler<AuthorizationHandler>()
                 .ConfigurePrimaryHttpMessageHandler(() => new CustomHttpClientHandler())
                 .AddTypedClient(client => RestService.For<IEventoServiceRefit>(client, refitSettings))
-                .AddPolicyHandler(retryConfig)
-                .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
-
-            services.AddHttpClient("FamiliaRefit", options =>
-            {
-                var familiaUrl = configuration.GetSection("FamiliaUrl").Value;
-                options.BaseAddress = new Uri(familiaUrl);
-            })
-                .AddHttpMessageHandler<AuthorizationHandler>()
-                .ConfigurePrimaryHttpMessageHandler(() => new CustomHttpClientHandler())
-                .AddTypedClient(client => RestService.For<IFamiliaServiceRefit>(client, refitSettings))
                 .AddPolicyHandler(retryConfig)
                 .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
 

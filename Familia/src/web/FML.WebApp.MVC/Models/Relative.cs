@@ -22,6 +22,7 @@ public class Relative : Entity
     public Guid HouseId { get; set; }
     public Guid? FatherId { get; set; }
     public Guid? MotherId { get; set; }
+    public string? FotoUrl { get; set; }
     public bool IsActive { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
@@ -47,4 +48,6 @@ public class Relative : Entity
     }
 
     public string FullName => $"{FirstName} {LastName}";
+
+    public string FotoPerfil { get; set; }
 }

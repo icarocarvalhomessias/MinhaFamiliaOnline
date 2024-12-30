@@ -1,5 +1,6 @@
 ﻿using FML.Core.Data;
 using FML.Core.DomainObjects;
+using FML.Familiares.API.Clients;
 using System.ComponentModel.DataAnnotations.Schema;
 
 [Serializable]
@@ -23,6 +24,9 @@ public class Relative : Entity, IAggregateRoot
     public Guid HouseId { get; set; }
     public Guid? FatherId { get; set; }
     public Guid? MotherId { get; set; }
+    public string? FotoStream { get; set; }
+    public Guid? FotoId { get; set; }
+
 
     public Relative? SpouseObj { get; set; }
     public List<Relative>? Children { get; set; }
@@ -60,4 +64,10 @@ public class Relative : Entity, IAggregateRoot
             return age;
         }
     }
+
+    [NotMapped]
+    public string? FotoPerfil { get; set; }
+
+    [NotMapped]
+    public string? FotoBase64Image { get; set; }
 }

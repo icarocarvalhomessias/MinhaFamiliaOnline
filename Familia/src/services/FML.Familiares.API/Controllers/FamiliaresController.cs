@@ -1,6 +1,7 @@
 ﻿using FML.Core.Data;
 using FML.Core.Mediator;
 using FML.Familiares.API.Application.Commands;
+using FML.Familiares.API.Models;
 using FML.Familiares.API.Services.Interface;
 using FML.WebApi.Core.Controllers;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +25,20 @@ namespace FML.Familiares.API.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> AtualizaRelative([FromBody] UpdateRelativeModel updateRelativeModel)
+        {
+            if (updateRelativeModel == null)
+            {
+                return BadRequest("Relative cannot be null");
+            }
+
+            await _relativeService.Update(updateRelativeModel);
+            return NoContent();
+        }
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetRelatives()
         {
@@ -31,26 +46,22 @@ namespace FML.Familiares.API.Controllers
             return CustomResponse(resposta);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AdicionarRelative()
-        {
-            if (!ModelState.IsValid)
-            {
-                return CustomResponse(ModelState);
-            }
+        //[HttpPut]
+        //public async Task<IActionResult> UpdateRelative(Relative relative)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var resultado = await _mediator.EnviarComando
-                (new RegistrarFamiliarCommand(Guid.NewGuid(), "TESTEEEEEEEE", "icaro@example.com", DateTime.Parse("14/06/1991"), Gender.Male));
+        //    var result = await _relativeService.Update(relative);
+        //    if (!result)
+        //    {
+        //        return BadRequest("Failed to update relative.");
+        //    }
 
-            return CustomResponse(resultado);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] Relative relative)
-        {
-            await _relativeService.Update(relative);
-            return CustomResponse(relative);
-        }
+        //    return Ok();
+        //}
 
 
         [HttpDelete("{relativeId:guid}")]

@@ -1,0 +1,124 @@
+﻿@{
+    ViewData["Title"] = "Familia2";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Assuming you have a shared layout file
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            font-family: Helvetica;
+        }
+
+        #tree {
+            width: 100%;
+            height: 100%;
+        }
+
+        .button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+            .button-container a {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                text-decoration: none;
+                color: #000;
+                background-color: #f8f9fa;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+                .button-container a:hover {
+                    background-color: #e2e6ea;
+                }
+
+        .search-container {
+            position: absolute;
+            top: 10px;
+            left: 200px;
+            display: flex;
+            align-items: center;
+        }
+
+            .search-container input {
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+
+            .search-container button {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+            }
+
+                .search-container button:hover {
+                    background-color: #0056b3;
+                }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search...">
+        <button onclick="searchTree()">Search</button>
+    </div>
+    <div id="tree"></div>
+
+    <script src="https://balkan.app/js/FamilyTree.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '@Url.Action("GetFamilyTreeNodes", "Familia")',
+                method: 'GET',
+                success: function (nodes) {
+                    console.log(nodes);
+                    var family = new FamilyTree(document.getElementById("tree"), {
+                        mouseScrool: FamilyTree.action.zoom,
+                        nodeBinding: {
+                            field_0: "name",
+                            img_0: "img"
+                        },
+                        nodes: nodes,
+                        nodeTemplate: function (node) {
+                            var color = node.gender === "female" ? "#FFC0CB" : "#FFFFFF"; // Rosa para female, branco para male
+                            return `<div style="background-color: ${color}; padding: 10px; border-radius: 5px;">
+                                        <img src="${node.img}" alt="${node.name}" style="width: 50px; height: 50px; border-radius: 50%;"><br>
+                                        <div>${node.name}</div>
+                                    </div>`;
+                        }
+                    });
+
+                    window.searchTree = function() {
+                        var searchValue = document.getElementById("searchInput").value.toLowerCase();
+                        family.search(searchValue);
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching family tree nodes:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

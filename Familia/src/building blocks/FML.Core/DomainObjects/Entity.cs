@@ -1,12 +1,14 @@
 ﻿using FML.Core.Messages;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace FML.Core.DomainObjects
 {
     public abstract class Entity
     {
+        [Required]
         public Guid Id { get; set; }
 
-        public DateTime CreateAt { get; set; }
         protected Entity()
         {
             Id = Guid.NewGuid();
@@ -14,6 +16,7 @@ namespace FML.Core.DomainObjects
 
         private List<Event> _notificacoes;
 
+        [ValidateNever]
         public IReadOnlyCollection<Event> Notificacoes => _notificacoes?.AsReadOnly();
 
         public void AdicionarEvento(Event evento)
@@ -31,8 +34,6 @@ namespace FML.Core.DomainObjects
         {
             _notificacoes?.Clear();
         }
-
-
 
         #region comparacao
 

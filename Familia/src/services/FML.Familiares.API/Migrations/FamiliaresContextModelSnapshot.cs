@@ -22,83 +22,6 @@ namespace FML.Familiares.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Familiar", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("BirthDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeathDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("FamilyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FatherId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("HouseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAlive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LinkName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Matriarch")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("MotherId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Patriarch")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("SecretSanta")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("Spouse")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FamilyId");
-
-                    b.HasIndex("HouseId");
-
-                    b.HasIndex("MotherId");
-
-                    b.HasIndex("Spouse")
-                        .IsUnique()
-                        .HasFilter("[Spouse] IS NOT NULL");
-
-                    b.ToTable("Relatives");
-                });
-
             modelBuilder.Entity("Family", b =>
                 {
                     b.Property<Guid>("Id")
@@ -159,7 +82,99 @@ namespace FML.Familiares.API.Migrations
                     b.ToTable("Houses");
                 });
 
-            modelBuilder.Entity("Familiar", b =>
+            modelBuilder.Entity("Relative", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeathDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("FamilyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FatherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("FotoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FotoStream")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("HouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAlive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LinkName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Matriarch")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("MotherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Patriarch")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SecretSanta")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("Spouse")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FamilyId");
+
+                    b.HasIndex("HouseId");
+
+                    b.HasIndex("MotherId");
+
+                    b.HasIndex("Spouse")
+                        .IsUnique()
+                        .HasFilter("[Spouse] IS NOT NULL");
+
+                    b.ToTable("Relatives");
+                });
+
+            modelBuilder.Entity("House", b =>
+                {
+                    b.HasOne("Family", null)
+                        .WithMany("Houses")
+                        .HasForeignKey("FamilyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Relative", b =>
                 {
                     b.HasOne("Family", "Family")
                         .WithMany("Relatives")
@@ -173,34 +188,20 @@ namespace FML.Familiares.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Familiar", null)
+                    b.HasOne("Relative", null)
                         .WithMany("Children")
                         .HasForeignKey("MotherId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Familiar", "SpouseObj")
+                    b.HasOne("Relative", "SpouseObj")
                         .WithOne()
-                        .HasForeignKey("Familiar", "Spouse");
+                        .HasForeignKey("Relative", "Spouse");
 
                     b.Navigation("Family");
 
                     b.Navigation("House");
 
                     b.Navigation("SpouseObj");
-                });
-
-            modelBuilder.Entity("House", b =>
-                {
-                    b.HasOne("Family", null)
-                        .WithMany("Houses")
-                        .HasForeignKey("FamilyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Familiar", b =>
-                {
-                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("Family", b =>
@@ -213,6 +214,11 @@ namespace FML.Familiares.API.Migrations
             modelBuilder.Entity("House", b =>
                 {
                     b.Navigation("Residents");
+                });
+
+            modelBuilder.Entity("Relative", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

@@ -30,64 +30,117 @@
     <div id="tree"></div>
 
     <script src="https://balkan.app/js/FamilyTree.js"></script>
-    <script src="https://balkan.app/js/OrgChart.js"></script>
-
     <script>
-        //JavaScript
+        var nodes = [
+            // Chicada e Maria Jovita
+            { id: 1, pids: [2], name: "Chicada", gender: "male", img: "https://cdn.balkan.app/shared/4.jpg" },
+            { id: 2, pids: [1], name: "Maria Jovita", gender: "female", img: "https://cdn.balkan.app/shared/5.jpg" },
 
-        OrgChart.templates.myTemplate = Object.assign({}, OrgChart.templates.ana);
-        OrgChart.templates.myTemplate.size = [200, 200];
-        OrgChart.templates.myTemplate.node = '<circle cx="100" cy="100" r="100" fill="#4D4D4D" stroke-width="1" stroke="#aeaeae"></circle>';
+            // Filhos do Chicada
+            { id: 3, mid: 2, fid: 1, pids: [8], name: "Inha Carvalho Messias", gender: "female", img: "https://cdn.balkan.app/shared/3.jpg" },
+            { id: 4, mid: 2, fid: 1, pids: [9], name: "Tina Carvalho Ferreira", gender: "female", img: "https://cdn.balkan.app/shared/4.jpg" },
+            { id: 5, mid: 2, fid: 1, pids: [10], name: "Jurandyr Valverde Carvalho", gender: "male", img: "https://cdn.balkan.app/shared/5.jpg" },
+            { id: 6, mid: 2, fid: 1, pids: [11], name: "Lidinha Carvalho Oliveira", gender: "female", img: "https://cdn.balkan.app/shared/6.jpg" },
+            { id: 7, mid: 2, fid: 1, pids: [12], name: "Dalila Carvalho Junqueira", gender: "female", img: "https://cdn.balkan.app/shared/7.jpg" },
 
-        OrgChart.templates.myTemplate.ripple = {
-            radius: 100,
-            color: "#e6e6e6",
-            rect: null
-        };
+            // Casados com os filhos do Chicada
+            { id: 8, pids: [3], name: "Mario Messias", gender: "male", img: "https://cdn.balkan.app/shared/8.jpg" },
+            { id: 9, pids: [4], name: "Paulo Ferreira", gender: "male", img: "https://cdn.balkan.app/shared/9.jpg" },
+            { id: 10, pids: [5], name: "Roseli Valverde", gender: "female", img: "https://cdn.balkan.app/shared/10.jpg" },
+            { id: 11, pids: [6], name: "Miguel Oliveira", gender: "male", img: "https://cdn.balkan.app/shared/11.jpg" },
+            { id: 12, pids: [7], name: "Airthon Junqueira", gender: "male", img: "https://cdn.balkan.app/shared/12.jpg" },
 
-        OrgChart.templates.myTemplate.field_0 = '<text style="font-size: 24px;" fill="#ffffff" x="100" y="90" text-anchor="middle">{val}</text>';
-        OrgChart.templates.myTemplate.field_1 = '<text style="font-size: 16px;" fill="#ffffff" x="100" y="60" text-anchor="middle">{val}</text>';
+            // Filhos da Inha
+            { id: 13, mid: 3, fid: 8, pids: [17], name: "Marcelo Carvalho Messias", gender: "male", img: "https://cdn.balkan.app/shared/13.jpg" },
+            { id: 14, mid: 3, fid: 8, name: "Cacalo Carvalho Messias", gender: "male", img: "https://cdn.balkan.app/shared/14.jpg" },
+            { id: 15, mid: 3, fid: 8, name: "Lidia Carvalho Messias", gender: "female", img: "https://cdn.balkan.app/shared/15.jpg" },
+            { id: 16, mid: 3, fid: 8, pids: [18], name: "Rosane Carvalho Monteiro", gender: "female", img: "https://cdn.balkan.app/shared/16.jpg" },
 
-        OrgChart.templates.myTemplate.img_0 = '<clipPath id="ulaImg"><circle cx="100" cy="150" r="40"></circle></clipPath><image preserveAspectRatio="xMidYMid slice" clip-path="url(#ulaImg)" xlink:href="{val}" x="60" y="110"  width="80" height="80"></image>';
+            // Casados com os filhos da Inha
+            { id: 17, pids: [13], name: "Marlene Brito", gender: "female", img: "https://cdn.balkan.app/shared/17.jpg" },
+            { id: 18, pids: [16], name: "Jose Eugenio Monteiro", gender: "male", img: "https://cdn.balkan.app/shared/18.jpg" },
 
+            // Netos da Inha
+            { id: 19, mid: 17, fid: 13, pids:[55], name: "Icaro Brito de Carvalho Messias", gender: "male", img: "https://dc701.4shared.com/img/dgsfXrIbge/s23/193c6e4be60/IMG_20220409_162258_439" },
+            { id: 20, mid: 17, fid: 13, name: "Natasha Brito de Carvalho Messias", gender: "female", img: "https://cdn.balkan.app/shared/20.jpg" },
+            { id: 21, mid: 17, fid: 13, name: "Marcela Brito de Carvalho Messias", gender: "female", img: "https://cdn.balkan.app/shared/21.jpg" },
+            { id: 22, mid: 16, fid: 18, name: "Huncas Carvalho Monteiro", gender: "male", img: "https://cdn.balkan.app/shared/22.jpg" },
+            { id: 23, mid: 16, fid: 18, name: "Yuri Carvalho Monteiro", gender: "male", img: "https://cdn.balkan.app/shared/23.jpg" },
+            { id: 24, mid: 16, fid: 18, name: "Raissa Carvalho Monteiro", gender: "female", img: "https://cdn.balkan.app/shared/24.jpg" },
 
-        var chart = new OrgChart(document.getElementById("tree"), {
-            mouseScrool: OrgChart.action.none,
-            mode: "dark",
-            template: "myTemplate",
-            enableDragDrop: false,
-            enableSearch: true,
-            menu: {
-                pdf: { text: "Export PDF" },
-                png: { text: "Export PNG" },
-                svg: { text: "Export SVG" },
-                csv: { text: "Export CSV" }
-            },
+            // Filhos da Lidinha
+            { id: 25, mid: 6, fid: 11, name: "Andre Carvalho Oliveira", gender: "male", img: "https://cdn.balkan.app/shared/25.jpg" },
+            { id: 26, mid: 6, fid: 11, name: "Lidiane Carvalho Oliveira", gender: "female", img: "https://cdn.balkan.app/shared/26.jpg" },
+
+            // Netos da Lidinha
+            { id: 27, mid: 25, fid: null, name: "Isabela Carvalho Oliveira", gender: "female", img: "https://cdn.balkan.app/shared/27.jpg" },
+            { id: 28, mid: 26, fid: null, name: "Arthur Carvalho Oliveira", gender: "male", img: "https://cdn.balkan.app/shared/28.jpg" },
+            { id: 29, mid: 26, fid: null, name: "Luiz Gustavo Carvalho Oliveira", gender: "male", img: "https://cdn.balkan.app/shared/29.jpg" },
+            { id: 30, mid: 26, fid: null, name: "Marcus Vinícius Carvalho Oliveira", gender: "male", img: "https://cdn.balkan.app/shared/30.jpg" },
+
+            // Filhos do Jurandyr
+            { id: 31, mid: 5, fid: 10, pids:[33], name: "Eduardo Valverde Carvalho (Dudu)", gender: "male", img: "https://cdn.balkan.app/shared/31.jpg" },
+            { id: 32, mid: 5, fid: 10, pids:[34], name: "Renata Valverde Carvalho", gender: "female", img: "https://cdn.balkan.app/shared/32.jpg" },
+
+            // Casados com filhos do Jurandyr
+            { id: 33, pids: [31], name: "Belisa Valverde Carvalho", gender: "female", img: "https://cdn.balkan.app/shared/33.jpg" },
+            { id: 34, pids: [32], name: "Vital", gender: "male", img: "https://cdn.balkan.app/shared/34.jpg" },
+
+            // Netos de Jurandyr
+            { id: 35, mid: 32, fid: 34, name: "Manuela Valverde Carvalho", gender: "female", img: "https://cdn.balkan.app/shared/35.jpg" },
+            { id: 36, mid: 33, fid: 31, name: "Benicio Valverde Carvalho", gender: "male", img: "https://cdn.balkan.app/shared/36.jpg" },
+
+            // Filhos da Tina
+            { id: 37, mid: 4, fid: 9, pids:[40], name: "Rodrigo", gender: "male", img: "https://cdn.balkan.app/shared/37.jpg" },
+            { id: 38, mid: 4, fid: 9, pids:[41], name: "Paulo (Rolete)", gender: "male", img: "https://cdn.balkan.app/shared/38.jpg" },
+            { id: 39, mid: 4, fid: 9, pids:[42], name: "Daniela (Dani)", gender: "female", img: "https://cdn.balkan.app/shared/39.jpg" },
+
+            // Casados com filhos da Tina
+            { id: 40, pids: [37], name: "Renata", gender: "female", img: "https://cdn.balkan.app/shared/40.jpg" },
+            { id: 41, pids: [38], name: "Patricia", gender: "female", img: "https://cdn.balkan.app/shared/41.jpg" },
+            { id: 42, pids: [39], name: "Adriano Maretti", gender: "male", img: "https://cdn.balkan.app/shared/42.jpg" },
+
+            // Netos da Tina
+            { id: 43, mid: 40, fid: 37, name: "Julia", gender: "female", img: "https://cdn.balkan.app/shared/43.jpg" },
+            { id: 44, mid: 41, fid: 38, name: "Duda", gender: "female", img: "https://cdn.balkan.app/shared/44.jpg" },
+            { id: 45, mid: 41, fid: 38, name: "Guilherme", gender: "male", img: "https://cdn.balkan.app/shared/45.jpg" },
+            { id: 46, mid: 42, fid: 39, name: "Drizinho", gender: "male", img: "https://cdn.balkan.app/shared/46.jpg" },
+            { id: 47, mid: 42, fid: 39, name: "Henrique", gender: "male", img: "https://cdn.balkan.app/shared/47.jpg" },
+
+            // Filhos da Dalila
+            { id: 48, mid: 7, fid: 12,pids:[50],  name: "Mayra", gender: "female", img: "https://cdn.balkan.app/shared/48.jpg" },
+            { id: 49, mid: 7, fid: 12,pids:[51], name: "Leonardo (Leo)", gender: "male", img: "https://cdn.balkan.app/shared/49.jpg" },
+
+            // Casados com os filhos da Dalila
+            { id: 50, pids: [48], name: "Adriano Dorna", gender: "male", img: "https://cdn.balkan.app/shared/50.jpg" },
+            { id: 51, pids: [49], name: "Bruna", gender: "female", img: "https://cdn.balkan.app/shared/51.jpg" },
+
+            // Netos da Dalila
+            { id: 52, mid: 48, fid: 50, name: "Gustavo", gender: "male", img: "https://cdn.balkan.app/shared/52.jpg" },
+            { id: 53, mid: 48, fid: 50, name: "Otavio", gender: "male", img: "https://cdn.balkan.app/shared/53.jpg" },
+            { id: 54, mid: 49, fid: 51, name: "Marina", gender: "female", img: "https://cdn.balkan.app/shared/54.jpg" },
+
+            { id: 55, pids:[19], name: "Lidia Mara", gender: "female", img: "https://dc723.4shared.com/img/0ZeoME0oku/s23/193c6e260e8/lidia" }
+
+        ];
+
+        var family = new FamilyTree(document.getElementById("tree"), {
+            mouseScrool: FamilyTree.action.zoom,
             nodeBinding: {
                 field_0: "name",
                 img_0: "img"
             },
-            nodes: [
-                { id: 1, name: "Chicada", img: "https://cdn.balkan.app/shared/4.jpg" },
-                { id: 2, name: "Maria Jovita", img: "https://cdn.balkan.app/shared/4.jpg" },
-
-                { id: 3, pid: 1, name: "Maria Aparecida", img: "https://cdn.balkan.app/shared/4.jpg" },
-                { id: 4, pid: 1, name: "Tina Carvalho", img: "https://cdn.balkan.app/shared/4.jpg" },
-                { id: 5, pid: 1, name: "Jurandyr Carvalho", img: "https://cdn.balkan.app/shared/11.jpg" },
-                { id: 6, pid: 1, name: "Lidinha Carvalho", img: "https://cdn.balkan.app/shared/4.jpg" },
-                { id: 7, pid: 1, name: "Dalila Carvalho", img: "https://cdn.balkan.app/shared/4.jpg" },
-
-                // { id: 8, pid: 3, name: "Mario Messias" },
-                // { id: 9, pid: 4, name: "Paulo Ferreira" },
-                // { id: 10, pid: 5, name: "Roseli Valverde" },
-                // { id: 11, pid: 6, name: "Miguel Oliveira"},
-                // { id: 12, pid: 7, name: "Airthon Junqueira" },
-                // { id: 2, pid: 1, name: "Marcela", img: "https://cdn.balkan.app/shared/2.jpg", mobile: "0878108255" },
-                // { id: 3, pid: 1, name: "Natasha", img: "https://cdn.balkan.app/shared/2.jpg" },
-                // { id: 4, pid: 1, name: "Icaro", img: "https://cdn.balkan.app/shared/3.jpg" }
-            ]
+            nodes: nodes,
+            nodeTemplate: function (node) {
+                var color = node.gender === "female" ? "#FFC0CB" : "#FFFFFF"; // Rosa para female, branco para male
+                return `<div style="background-color: ${color}; padding: 10px; border-radius: 5px;">
+                            <img src="${node.img}" alt="${node.name}" style="width: 50px; height: 50px; border-radius: 50%;"><br>
+                            <div>${node.name}</div>
+                        </div>`;
+            }
         });
     </script>
 </body>
 </html>
+
 

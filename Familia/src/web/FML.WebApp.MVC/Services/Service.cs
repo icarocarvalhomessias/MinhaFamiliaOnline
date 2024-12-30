@@ -9,24 +9,25 @@ namespace FML.WebApp.MVC.Services
 {
     public abstract class Service
     {
+        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            ReferenceHandler = ReferenceHandler.Preserve,
+            Converters = { new JsonStringEnumConverter() },
+            MaxDepth = 64
+        };
+
         protected StringContent ObterConteudo(object dado)
         {
             return new StringContent(
-                JsonSerializer.Serialize(dado),
+                JsonSerializer.Serialize(dado, _jsonOptions),
                 Encoding.UTF8,
                 "application/json");
         }
 
         protected async Task<T> DeserializarObjetoResponse<T>(HttpResponseMessage responseMessage)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                ReferenceHandler = ReferenceHandler.Preserve,
-                MaxDepth = 64
-            };
-
-            return JsonSerializer.Deserialize<T>(await responseMessage.Content.ReadAsStringAsync(), options);
+            return JsonSerializer.Deserialize<T>(await responseMessage.Content.ReadAsStringAsync(), _jsonOptions);
         }
 
         protected bool TratarErrosResponse(HttpResponseMessage response)
@@ -46,6 +47,6 @@ namespace FML.WebApp.MVC.Services
             response.EnsureSuccessStatusCode();
             return true;
         }
-
     }
+
 }

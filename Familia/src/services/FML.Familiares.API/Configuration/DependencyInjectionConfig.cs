@@ -8,14 +8,17 @@ using MediatR;
 using FML.Familiares.API.Application.Commands;
 using FluentValidation.Results;
 using FML.Familiares.API.Application.Events;
+using FML.Core.Data;
+using FML.Familiares.API.Clients;
 
 namespace FML.Familiares.API.Configuration
 {
     public static class DependencyInjectionConfig
     {
-        public static void RegisterServices(this IServiceCollection services)
+        public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
-            
+            services.AddScoped<IAspNetUser, AspNetUser>();
+
             services.AddScoped<IMediatorHandler, MediatorHandler>();
             services.AddScoped<IRequestHandler<RegistrarFamiliarCommand, ValidationResult>, FamiliarCommandHandler>();
             services.AddScoped<INotificationHandler<FamiliarRegistradoEvent>, FamiliarEventHandler>();
@@ -29,6 +32,21 @@ namespace FML.Familiares.API.Configuration
             services.AddScoped<IRelativeService, RelativeService>();
             services.AddScoped<IHouseService, HouseService>();
 
+            //set base address here
+            services.AddHttpClient<IFileHttp, FileHttp>(client =>
+            {
+                var fileUrl = configuration["FileUrl"];
+                if (string.IsNullOrEmpty(fileUrl))
+                {
+                    throw new ArgumentNullException(nameof(fileUrl), "FileUrl environment variable is not set.");
+                }
+                client.BaseAddress = new Uri(fileUrl);
+            })
+            .AddHttpMessageHandler<AuthorizationHandler>()
+            .ConfigurePrimaryHttpMessageHandler(() => new CustomHttpClientHandler())
+            .AddJsonOptions();
+
+            services.AddTransient<AuthorizationHandler>();
             services.AddScoped<FamiliaresContext>();
         }
     }

@@ -70,6 +70,10 @@ namespace FML.Familiares.API.Data.Mappings
             builder.Property(r => r.SpouseObj)
                 .HasColumnType("uniqueidentifier");
 
+            //fotoId and FotoUrl
+            builder.Property(r => r.FotoId)
+                .HasColumnType("uniqueidentifier");
+
             builder.Property(r => r.SecretSanta)
                 .IsRequired()
                 .HasColumnType("bit");
@@ -83,6 +87,8 @@ namespace FML.Familiares.API.Data.Mappings
                 .WithMany(f => f.Relatives)
                 .HasForeignKey(r => r.FamilyId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+
 
             builder.ToTable("Relatives");
         }

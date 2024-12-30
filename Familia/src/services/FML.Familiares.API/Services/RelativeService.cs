@@ -1,5 +1,7 @@
 ﻿using FML.Core.Data;
+using FML.Familiares.API.Clients;
 using FML.Familiares.API.Data.Repository.Interface;
+using FML.Familiares.API.Models;
 using FML.Familiares.API.Services.Interface;
 
 namespace FML.Familiares.API.Services
@@ -9,22 +11,46 @@ namespace FML.Familiares.API.Services
         private readonly IRelativeRepository _relativeRepository;
         private readonly IFamilyRepository _familyRepository;
         private readonly IHouseRepository _houseRepository;
+        private readonly IFileHttp _fileHttp;
 
         public RelativeService(
             IRelativeRepository relativeRepository, 
             IFamilyRepository familyRepository, 
-            IHouseRepository houseRepository)
+            IHouseRepository houseRepository,
+            IFileHttp fileHttp)
         {
             _relativeRepository = relativeRepository;
             _familyRepository = familyRepository;
             _houseRepository = houseRepository;
+            _fileHttp = fileHttp;
         }
 
 
         public async Task<IEnumerable<Relative>> GetRelatives()
         {
             var id = Guid.Parse("417d7e43-fe2f-44d6-a8c4-4070e841ad53");
-            return await _relativeRepository.GetRelativesByFamilyId(id);
+            var relatives = await _relativeRepository.GetRelativesByFamilyId(id);
+
+            foreach (var relative in relatives.Where(x => x.FotoId != null))
+            {
+                var url = await _fileHttp.ImageUrlAsync(relative.FotoId.Value);
+                relative.FotoPerfil = url;
+            }
+
+            return relatives;
+        }
+
+        public async Task<Relative> GetRelativeById(Guid relativeId)
+        {
+            var relative =  await _relativeRepository.GetRelativeById(relativeId);
+
+            if(relative.FotoId != null)
+            {
+                var url = await _fileHttp.ImageUrlAsync(relative.FotoId.Value);
+                relative.FotoPerfil = url;
+            }
+
+            return relative;
         }
 
         public async Task<Guid> Add()
@@ -166,16 +192,33 @@ namespace FML.Familiares.API.Services
             return familia.Id;
         }
 
-        public async Task<bool> Update(Relative relative)
+        public async Task<bool> Update(UpdateRelativeModel relative)
         {
-            return await _relativeRepository.UpdateRelative(relative);
+            if (!string.IsNullOrEmpty(relative.FotoFileBase64))
+            {
+                var bytes = Convert.FromBase64String(relative.FotoFileBase64);
+                var fileName = $"{relative.Relative.Id}.jpg";
+                var response = await _fileHttp.UploadPhotoAsync(bytes, fileName);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var id = await response.Content.ReadAsStringAsync();
+                    relative.Relative.FotoId = Guid.Parse(id.Trim('"'));
+
+                }
+                else
+                {
+                    // Handle error
+                    return false;
+                }
+            }
+
+            return await _relativeRepository.UpdateRelative(relative.Relative);
         }
 
 
-        public async Task<Relative> GetRelativeById(Guid relativeId)
-        {
-            return await _relativeRepository.GetRelativeById(relativeId);
-        }
+
+
 
         public async Task<bool> AddRelative(Relative relative)
         {

@@ -1,6 +1,5 @@
 ﻿@model Relative
 
-
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
@@ -23,7 +22,8 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<form class="form-horizontal" asp-action="@((Model.Id == Guid.Empty) ? "Create" : "Edit")" id="createForm">
+<form class="form-horizontal" asp-action="@((Model.Id == Guid.Empty) ? "Create" : "Edit")" id="createForm" enctype="multipart/form-data">
+
     <fieldset>
         <div class="panel panel-primary">
             <div class="panel-heading">@((Model.Id == Guid.Empty) ? "Cadastro de Familiar" : "Edição de Familiar")</div>
@@ -36,39 +36,166 @@
 
                 <input type="hidden" asp-for="Id" />
 
-                <!-- Nome e Sobrenome -->
+                <!-- Nome, Sobrenome -->
                 <div class="form-group">
-                    <label class="col-md-2 control-label" for="FirstName">Nome <h11>*</h11></label>
+                    <label class="col-md-1  control-label" for="FirstName">Nome <h11>*</h11></label>
                     <div class="col-md-4">
                         <input asp-for="FirstName" class="form-control input-md" required="" type="text">
                         <span asp-validation-for="FirstName" class="text-danger" id="firstNameValidation" style="display:none;"></span>
                     </div>
-                    <label class="col-md-2 control-label" for="LastName">Sobrenome <h11>*</h11></label>
+                    <label class="col-md-1  control-label" for="LastName">Sobrenome <h11>*</h11></label>
                     <div class="col-md-4">
                         <input asp-for="LastName" class="form-control input-md" required="" type="text">
                         <span asp-validation-for="LastName" class="text-danger"></span>
                     </div>
                 </div>
 
-                <!-- Data de Nascimento e Data de Falecimento -->
+                <!-- IDs da Família, Casa, Pai e Mãe -->
                 <div class="form-group">
-                    <label class="col-md-2 control-label" for="BirthDate">Data de Nascimento <h11>*</h11></label>
+                    <label class="col-md-1  control-label" for="FamilyId">Família</label>
                     <div class="col-md-4">
-                        <input asp-for="BirthDate" class="form-control input-md" required="" type="date">
-                        <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        <select asp-for="FamilyId" class="form-control" asp-items="ViewBag.Familias">
+                            <option value="">Selecione</option>
+                        </select>
+                        <span asp-validation-for="FamilyId" class="text-danger"></span>
                     </div>
-                    <label class="col-md-2 control-label" for="DeathDate">Data de Falecimento</label>
+                    <label class="col-md-1  control-label" for="HouseId">Casa</label>
                     <div class="col-md-4">
-                        <input asp-for="DeathDate" class="form-control input-md" type="date">
-                        <span asp-validation-for="DeathDate" class="text-danger"></span>
+                        <select asp-for="HouseId" class="form-control" asp-items="ViewBag.Casas">
+                            <option value="">Selecione</option>
+                        </select>
+                        <span asp-validation-for="HouseId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-1  control-label" for="FatherId">Pai</label>
+                    <div class="col-md-4">
+                        <select asp-for="FatherId" class="form-control" asp-items="ViewBag.Homens">
+                            <option value="">Selecione</option>
+                        </select>
+                        <span asp-validation-for="FatherId" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="MotherId">Mãe</label>
+                    <div class="col-md-4">
+                        <select asp-for="MotherId" class="form-control" asp-items="ViewBag.Mulheres">
+                            <option value="">Selecione</option>
+                        </select>
+                        <span asp-validation-for="MotherId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Nome do Link, Cônjuge e Amigo Secreto -->
+                <div class="form-group">
+                    <label class="col-md-1 control-label" for="LinkName">Nome do Link</label>
+                    <div class="col-md-4">
+                        <input asp-for="LinkName" class="form-control input-md" type="url">
+                        <span asp-validation-for="LinkName" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1 control-label" for="FotoUrl">Foto</label>
+                    <div class="col-md-4">
+                        <input type="file" name="FotoFile" class="form-control input-md">
+                        <span asp-validation-for="FotoUrl" class="text-danger"></span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                {
+                    <div class="form-group">
+                        <div class="col-md-4 col-md-offset-1">
+                            <img src="@Model.FotoUrl" alt="Foto" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                        </div>
+                    </div>
+                }
+
+
+
+
+                <div class="form-group">
+                    <label class="col-md-1  control-label" for="SecretSanta">Amigo Secreto</label>
+                    <div class="col-md-4">
+                        <input asp-for="SecretSanta" class="form-control input-md" type="text">
+                        <span asp-validation-for="SecretSanta" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="Email">Email <h11>*</h11></label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="email@email.com" type="text">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-1  control-label" for="Phone">Telefone <h11>*</h11></label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-earphone"></i></span>
+                            <input asp-for="Phone" class="form-control" placeholder="XX XXXXX-XXXX" type="text" maxlength="13" pattern="\[0-9]{2}\ [0-9]{4,6}-[0-9]{3,4}$" OnKeyPress="formatar('## #####-####', this)">
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <label class="col-md-1  control-label" for="Spouse">Cônjuge</label>
+                    <div class="col-md-4">
+                        <select asp-for="Spouse" class="form-control" asp-items="ViewBag.Spouses">
+                            <option value="">Selecione</option>
+                        </select>
+                        <span asp-validation-for="SpouseObj" class="text-danger"></span>
                     </div>
                 </div>
 
 
-                <!-- Gênero -->
+                @* Data de Nascimento e Data de Falecimento *@
                 <div class="form-group">
-                    <label class="col-md-2 control-label" for="Gender">Gênero <h11>*</h11></label>
-                    <div class="col-md-4">
+                    <label class="col-md-1  control-label" for="BirthDate">Data de Nascimento <h11>*</h11></label>
+                    <div class="col-md-1">
+                        <input asp-for="BirthDate" class="form-control input-md" required="" type="date">
+                        <span asp-validation-for="BirthDate" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="IsActive">Ativo</label>
+                    <div class="col-md-1">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch">
+                            <label class="form-check-label" for="IsActive">Sim</label>
+                        </div>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="IsAlive">Está Vivo</label>
+                    <div class="col-md-1">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsAlive" class="form-check-input" type="checkbox" role="switch">
+                            <label class="form-check-label" for="IsAlive">Sim</label>
+                        </div>
+                        <span asp-validation-for="IsAlive" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="Patriarch">Patriarca</label>
+                    <div class="col-md-1">
+                        <div class="form-check form-switch">
+                            <input asp-for="Patriarch" class="form-check-input" type="checkbox" role="switch">
+                            <label class="form-check-label" for="Patriarch">Sim</label>
+                        </div>
+                        <span asp-validation-for="Patriarch" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="Matriarch">Matriarca</label>
+                    <div class="col-md-1">
+                        <div class="form-check form-switch">
+                            <input asp-for="Matriarch" class="form-check-input" type="checkbox" role="switch">
+                            <label class="form-check-label" for="Matriarch">Sim</label>
+                        </div>
+                        <span asp-validation-for="Matriarch" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+
+                    <label class="col-md-1  control-label" for="DeathDate">Data de Falecimento</label>
+                    <div class="col-md-1">
+                        <input asp-for="DeathDate" class="form-control input-md" type="date">
+                        <span asp-validation-for="DeathDate" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-1  control-label" for="Gender">Gênero <h11>*</h11></label>
+
+                    <div class="col-md-1">
                         <select asp-for="Gender" class="form-control" required>
                             <option value="">Selecione</option>
                             <option value="Male">Masculino</option>
@@ -79,135 +206,19 @@
                     </div>
                 </div>
 
-                <!-- IDs da Família, Casa, Pai e Mãe -->
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="FamilyId">ID da Família</label>
-                    <div class="col-md-4">
-                        <select asp-for="FamilyId" class="form-control" asp-items="ViewBag.Familias">
-                            <option value="">Selecione</option>
-                        </select>
-                        <span asp-validation-for="FamilyId" class="text-danger"></span>
-                    </div>
-                    <label class="col-md-2 control-label" for="HouseId">ID da Casa</label>
-                    <div class="col-md-4">
-                        <select asp-for="HouseId" class="form-control" asp-items="ViewBag.Casas">
-                            <option value="">Selecione</option>
-                        </select>
-                        <span asp-validation-for="HouseId" class="text-danger"></span>
-                    </div>
-                </div>
+               
 
+                
 
                 <div class="form-group">
-                    <label class="col-md-2 control-label" for="FatherId">ID do Pai</label>
-                    <div class="col-md-4">
-                        <select asp-for="FatherId" class="form-control" asp-items="ViewBag.Homens">
-                            <option value="">Selecione</option>
-                        </select>
-                        <span asp-validation-for="FatherId" class="text-danger"></span>
-                    </div>
-                    <label class="col-md-2 control-label" for="MotherId">ID da Mãe</label>
-                    <div class="col-md-4">
-                        <select asp-for="MotherId" class="form-control" asp-items="ViewBag.Mulheres">
-                            <option value="">Selecione</option>
-                        </select>
-                        <span asp-validation-for="MotherId" class="text-danger"></span>
-                    </div>
+                    
                 </div>
 
-
-
-                <!-- Ativo e Está Vivo -->
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="IsActive">Ativo</label>
-                    <div class="col-md-4">
-                        <div class="form-check form-switch">
-                            <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch">
-                            <label class="form-check-label" for="IsActive">Sim</label>
-                        </div>
-                        <span asp-validation-for="IsActive" class="text-danger"></span>
-                    </div>
-                    <label class="col-md-2 control-label" for="IsAlive">Está Vivo</label>
-                    <div class="col-md-4">
-                        <div class="form-check form-switch">
-                            <input asp-for="IsAlive" class="form-check-input" type="checkbox" role="switch">
-                            <label class="form-check-label" for="IsAlive">Sim</label>
-                        </div>
-                        <span asp-validation-for="IsAlive" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <!-- Email e Telefone -->
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="Email">Email <h11>*</h11></label>
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
-                            <input asp-for="Email" class="form-control" placeholder="email@email.com" type="text">
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <label class="col-md-2 control-label" for="Phone">Telefone <h11>*</h11></label>
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-earphone"></i></span>
-                            <input asp-for="Phone" class="form-control" placeholder="XX XXXXX-XXXX" type="text" maxlength="13" pattern="\[0-9]{2}\ [0-9]{4,6}-[0-9]{3,4}$" OnKeyPress="formatar('## #####-####', this)">
-                            <span asp-validation-for="Phone" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Patriarca e Matriarca -->
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="Patriarch">Patriarca</label>
-                    <div class="col-md-4">
-                        <div class="form-check form-switch">
-                            <input asp-for="Patriarch" class="form-check-input" type="checkbox" role="switch">
-                            <label class="form-check-label" for="Patriarch">Sim</label>
-                        </div>
-                        <span asp-validation-for="Patriarch" class="text-danger"></span>
-                    </div>
-                    <label class="col-md-2 control-label" for="Matriarch">Matriarca</label>
-                    <div class="col-md-4">
-                        <div class="form-check form-switch">
-                            <input asp-for="Matriarch" class="form-check-input" type="checkbox" role="switch">
-                            <label class="form-check-label" for="Matriarch">Sim</label>
-                        </div>
-                        <span asp-validation-for="Matriarch" class="text-danger"></span>
-                    </div>
-                </div>
-
-
-                <!-- Nome do Link e Cônjuge -->
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="LinkName">Nome do Link</label>
-                    <div class="col-md-4">
-                        <input asp-for="LinkName" class="form-control input-md" type="url">
-                        <span asp-validation-for="LinkName" class="text-danger"></span>
-                    </div>
-                    <label class="col-md-2 control-label" for="Spouse">Cônjuge</label>
-                    <div class="col-md-4">
-                        <select asp-for="Spouse" class="form-control" asp-items="ViewBag.Spouses">
-                            <option value="">Selecione</option>
-                        </select>
-                        <span asp-validation-for="SpouseObj" class="text-danger"></span>
-                    </div>
-
-                </div>
-
-
-                <!-- Amigo Secreto -->
-                <div class="form-group">
-                    <label class="col-md-2 control-label" for="SecretSanta">Amigo Secreto</label>
-                    <div class="col-md-4">
-                        <input asp-for="SecretSanta" class="form-control input-md" type="text">
-                        <span asp-validation-for="SecretSanta" class="text-danger"></span>
-                    </div>
-                </div>
+               
 
                 <!-- Submit Button -->
                 <div class="form-group">
-                    <div class="col-md-2 col-md-offset-2">
+                    <div class="col-md-1  col-md-offset-2">
                         <input type="submit" value="@((Model.Id == Guid.Empty) ? "Create" : "Save")" class="btn btn-primary" />
                     </div>
                 </div>
@@ -225,3 +236,4 @@
         document.getElementById('firstNameValidation').style.display = 'block';
     });
 </script>
+

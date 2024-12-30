@@ -18,10 +18,10 @@ namespace FML.Familiares.API.Data.Repository
         public async Task<IEnumerable<Relative>> GetRelativesByFamilyId(Guid familyId)
         {
             return await _context.Relatives
-                .Include(r => r.Family)
-                .Include(r => r.House)
-                .AsNoTracking()
-                .Where(r => r.FamilyId == familyId).ToListAsync();
+            .Include(r => r.Family)
+            .Include(r => r.House)
+            .AsNoTracking()
+            .Where(r => r.FamilyId == familyId).ToListAsync();
         }
 
         public async Task<IEnumerable<Relative>> GetRelativesByFatherId(Guid fatherId)
@@ -73,9 +73,11 @@ namespace FML.Familiares.API.Data.Repository
 
         public async Task<Relative?> GetRelativeById(Guid relativeId)
         {
-            var teste123 = _context.Relatives.Where(x => x.Id == relativeId).ToList();
-
-            return teste123.Any() ? teste123.First() : null;
+            return await _context.Relatives
+            .Include(r => r.Family)
+            .Include(r => r.House)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == relativeId);
         }
 
 
