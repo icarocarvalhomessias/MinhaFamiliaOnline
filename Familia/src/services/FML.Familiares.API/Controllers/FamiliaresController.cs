@@ -37,6 +37,17 @@ namespace FML.Familiares.API.Controllers
             return NoContent();
         }
 
+        [HttpPost("adicionar")]
+        public async Task<IActionResult> AdicionarRelative([FromBody] Relative relative)
+        {
+            if (relative == null)
+            {
+                return BadRequest("Relative cannot be null");
+            }
+            await _relativeService.AddRelative(relative);
+            return NoContent();
+        }
+
 
 
         [HttpGet]
@@ -45,23 +56,6 @@ namespace FML.Familiares.API.Controllers
             var resposta = await _relativeService.GetRelatives();
             return CustomResponse(resposta);
         }
-
-        //[HttpPut]
-        //public async Task<IActionResult> UpdateRelative(Relative relative)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    var result = await _relativeService.Update(relative);
-        //    if (!result)
-        //    {
-        //        return BadRequest("Failed to update relative.");
-        //    }
-
-        //    return Ok();
-        //}
 
 
         [HttpDelete("{relativeId:guid}")]

@@ -25,30 +25,42 @@ namespace FML.WebApp.MVC.Controllers
             _familiaService = familiaService;
         }
 
+        /// <summary>
+        /// Displays the index page.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             return await Table();
         }
 
+        /// <summary>
+        /// Displays the family tree view.
+        /// </summary>
         [HttpGet]
         public IActionResult FamilyTree()
         {
             return View("FamilyTree");
         }
 
+        /// <summary>
+        /// Displays the table view with relatives.
+        /// </summary>
         public async Task<IActionResult> Table()
         {
             var relatives = await _familiaService.GetRelatives();
-
             return View("Table", relatives);
         }
 
+        /// <summary>
+        /// Gets the family tree nodes as JSON.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetFamilyTreeNodes()
         {
             var relatives = await _familiaService.GetRelatives();
-            var nodes = relatives.Select(relative => new
+
+            var nodes = relatives.AsParallel().Select(relative => new
             {
                 id = relative.Id,
                 pids = relative.Spouse.HasValue ? new List<Guid> { relative.Spouse.Value } : new List<Guid>(),
@@ -70,6 +82,9 @@ namespace FML.WebApp.MVC.Controllers
         }
 
 
+        /// <summary>
+        /// Displays the edit view for a relative.
+        /// </summary>
         public async Task<IActionResult> ParenteEdit(Guid id)
         {
             if (id == Guid.Empty)
@@ -90,6 +105,10 @@ namespace FML.WebApp.MVC.Controllers
         }
 
 
+
+        /// <summary>
+        /// Edits a relative.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Edit(Relative model, IFormFile FotoFile)
         {
@@ -100,10 +119,19 @@ namespace FML.WebApp.MVC.Controllers
                 return View("Create", model);
             }
 
+            if (FotoFile is null)
+            {
+                await _familiaService.UpdateRelative(model, null, null);
+                return RedirectToAction("Index");
+            }
+
             await _familiaService.UpdateRelative(model, FotoFile.OpenReadStream(), FotoFile.FileName);
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Displays the create view for a new relative.
+        /// </summary>
         public async Task<IActionResult> Create()
         {
             var relatives = await _familiaService.GetRelatives();
@@ -115,9 +143,14 @@ namespace FML.WebApp.MVC.Controllers
 
             await PopulateDropDownLists();
 
-            return View("Create", new Relative());
+            var relative = new Relative();
+
+            return View("Create", relative);
         }
 
+        /// <summary>
+        /// Creates a new relative.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Create(Relative relative)
         {
@@ -131,15 +164,25 @@ namespace FML.WebApp.MVC.Controllers
             return View(relative);
         }
 
+        /// <summary>
+        /// Removes a relative.
+        /// </summary>
+        public async Task<IActionResult> RemoveRelative(Relative relative)
+        {
+            await _familiaService.RemoveRelative(relative.Id);
+            return RedirectToAction("Index");
+        }
 
 
+
+        /// <summary>
+        /// Organizes the family tree.
+        /// </summary>
         private FamilyTreeViewModel OrganizeFamilyTree(List<Relative> relatives)
         {
             var TESTE = relatives.Where(x => x.Id != Guid.Parse("1a9cedd7-4493-4c7b-c81c-08dd0d7371ad")
             && x.Id != Guid.Parse("9c6a8126-180b-40b2-65bf-08dd0d73fbc5")).ToList();
 
-            // Implementação do método para organizar a árvore genealógica
-            // Esta é uma implementação simplificada e pode precisar de ajustes
             var root = new FamilyTreeViewModel
             {
                 Pessoa1 = TESTE.FirstOrDefault(r => r.Patriarch),
@@ -148,12 +191,14 @@ namespace FML.WebApp.MVC.Controllers
 
             root.Id = GenerateId(root);
 
-            // Adicionar filhos recursivamente
             AddChildren(root, TESTE);
 
             return root;
         }
 
+        /// <summary>
+        /// Adds children to the family tree node.
+        /// </summary>
         private void AddChildren(FamilyTreeViewModel parent, List<Relative> relatives)
         {
             if (parent.Pessoa1 is null || parent.Pessoa2 is null)
@@ -161,7 +206,6 @@ namespace FML.WebApp.MVC.Controllers
                 return;
             }
 
-            // Filtra os filhos que têm o pai ou a mãe como Pessoa1 ou Pessoa2
             var children = relatives.Where(r =>
                 (r.MotherId.HasValue && (r.MotherId == parent.Pessoa1.Id || r.MotherId == parent.Pessoa2.Id)) ||
                 (r.FatherId.HasValue && (r.FatherId == parent.Pessoa1.Id || r.FatherId == parent.Pessoa2.Id))
@@ -172,7 +216,7 @@ namespace FML.WebApp.MVC.Controllers
                 var childNode = new FamilyTreeViewModel
                 {
                     Pessoa1 = child,
-                    Pessoa2 = relatives.FirstOrDefault(r => r.Id == child.Spouse) // Exemplo de cônjuge
+                    Pessoa2 = relatives.FirstOrDefault(r => r.Id == child.Spouse)
                 };
 
                 childNode.Id = GenerateId(childNode);
@@ -182,6 +226,9 @@ namespace FML.WebApp.MVC.Controllers
             }
         }
 
+        /// <summary>
+        /// Generates an ID for the family tree node.
+        /// </summary>
         private string GenerateId(FamilyTreeViewModel familyTreeViewModel)
         {
             var id1 = familyTreeViewModel.Pessoa1?.Id.ToString() ?? string.Empty;
@@ -189,14 +236,9 @@ namespace FML.WebApp.MVC.Controllers
             return id1 + id2;
         }
 
-
-
-        public async Task<IActionResult> RemoveRelative(Relative relative)
-        {
-            await _familiaService.RemoveRelative(relative.Id);
-            return RedirectToAction("Index");
-        }
-
+        /// <summary>
+        /// Populates the dropdown lists for the view.
+        /// </summary>
         private async Task PopulateDropDownLists()
         {
             var family = await _familiaService.GetRelatives();
@@ -214,6 +256,9 @@ namespace FML.WebApp.MVC.Controllers
             ViewBag.Spouses = new SelectList(family, "Id", "FirstName");
         }
 
+        /// <summary>
+        /// Logs model errors to the console.
+        /// </summary>
         private void LogModelErrors()
         {
             foreach (var state in ModelState)
@@ -224,46 +269,5 @@ namespace FML.WebApp.MVC.Controllers
                 }
             }
         }
-
-
-
-
-     
-
-
-        public class Node
-        {
-            public Guid Id { get; set; }
-            public List<Guid> Pids { get; set; }
-            public string Name { get; set; }
-            public string Gender { get; set; }
-            public Guid? Mid { get; set; }
-            public Guid? Fid { get; set; }
-            public string Img { get; set; }
-        }
-
-        //var relatives = await _familiaService.GetRelatives();
-
-        //var nodes = new List<Node>();
-
-        //foreach (var relative in relatives)
-        //{
-        //    var node = new Node
-        //    {
-        //        Id = relative.Id,
-        //        Name = relative.FullName,
-        //        Gender = relative.Gender.ToString(),
-        //        Mid = relative.MotherId,
-        //        Fid = relative.FatherId,
-        //        Pids = new List<Guid> { relative.MotherId ?? Guid.Empty, relative.FatherId ?? Guid.Empty },
-        //        Img = relative.LinkName ?? string.Empty
-
-        //    };
-        //    nodes.Add(node);
-        //}
-
-        //ViewData["NodesJson"] = JsonConvert.SerializeObject(nodes);
-
-        //return View();
     }
 }

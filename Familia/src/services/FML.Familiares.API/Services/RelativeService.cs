@@ -188,7 +188,6 @@ namespace FML.Familiares.API.Services
                 Console.WriteLine("Erro ao salvar os dados");
             }
 
-
             return familia.Id;
         }
 
@@ -215,10 +214,6 @@ namespace FML.Familiares.API.Services
 
             return await _relativeRepository.UpdateRelative(relative.Relative);
         }
-
-
-
-
 
         public async Task<bool> AddRelative(Relative relative)
         {
@@ -990,5 +985,6 @@ namespace FML.Familiares.API.Services
 
 
         #endregion
+
     }
 }

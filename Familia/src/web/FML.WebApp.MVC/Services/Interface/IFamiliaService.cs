@@ -12,9 +12,7 @@ namespace FML.WebApp.MVC.Services.Interface
         Task<List<Relative>> GetRelatives();
         Task<Relative> GetRelativeById(Guid relativeId);
         Task AddRelative(Relative relative);
-        Task UpdateRelative(Relative relative, Stream fotoFile, string fileName);
-        Task AtualizaRelative(Relative relative);
-        Task UpdateRelative(Relative relative);
+        Task UpdateRelative(Relative relative, Stream? fotoFile, string? fileName);
         Task RemoveRelative(Guid relativeId);
     }
 }

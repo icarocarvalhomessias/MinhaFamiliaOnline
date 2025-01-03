@@ -60,7 +60,7 @@ namespace FML.WebApp.MVC.Services
         public async Task AddRelative(Relative relative)
         {
             var content = ObterConteudo(relative);
-            var response = await _httpClient.PostAsync("/api/familiares", content);
+            var response = await _httpClient.PostAsync("/api/familiares/adicionar", content);
 
             TratarErrosResponse(response);
         }
@@ -68,11 +68,6 @@ namespace FML.WebApp.MVC.Services
         public async Task UpdateRelative(Relative relative)
         {
             var content = ObterConteudo(relative);
-
-            //if (fotoFile != null)
-            //{
-            //    content.Add(new StreamContent(fotoFile), "fotoFile", fileName);
-            //}
 
             var response = await _httpClient.PatchAsync("/api/familiares", content);
 
@@ -86,28 +81,7 @@ namespace FML.WebApp.MVC.Services
             TratarErrosResponse(response);
         }
 
-        public async Task AtualizaRelative(Relative relative)
-        {
-            try
-            {
-                var content = ObterConteudo(relative);
-                var response = await _httpClient.PostAsync("/api/familiares", content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error updating relative: {errorMessage}");
-                }
-
-                TratarErrosResponse(response);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public async Task UpdateRelative(Relative relative, Stream fotoFile, string fileName)
+        public async Task UpdateRelative(Relative relative, Stream? fotoFile, string? fileName)
         {
             try
             {
@@ -136,17 +110,19 @@ namespace FML.WebApp.MVC.Services
             }
         }
 
-        private string ConvertStreamToBase64(Stream stream)
+        private string ConvertStreamToBase64(Stream? stream)
         {
+            if (stream == null)
+            {
+                return string.Empty;
+            }
+
             using (var memoryStream = new MemoryStream())
             {
                 stream.CopyTo(memoryStream);
                 return Convert.ToBase64String(memoryStream.ToArray());
             }
         }
-
-
-
     }
 
     public class UpdateRelativeModel
